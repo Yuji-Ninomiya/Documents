@@ -1,0 +1,6 @@
+# 特定のフォルダの中身を無視
+C++/
+Python/
+SFML-2.3.2/
+Tex/
+motoman_project/

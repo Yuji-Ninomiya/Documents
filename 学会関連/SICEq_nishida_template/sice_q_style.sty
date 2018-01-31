@@ -1,0 +1,174 @@
+%-----------------------------------------------------------------------
+%                 　sice九州支部学術講演会用原稿スタイル                    
+%                               LaTex 2e Format                             
+%-----------------------------------------------------------------------
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%--------------------------スタイルファイル-----------------------------
+
+\usepackage{amsmath}            %数式スタイル
+%\usepackage{txfonts}            %Timesフォントに設定
+\usepackage{bm}                 %数式のボールドイタリック体の設定
+\usepackage[dvipdfm]{graphicx}  %epsの表示のための設定(pdf用)
+\usepackage{tabularx}           %表組みスタイル
+\pagestyle{empty}               %ページ番号をつけない
+
+%-----------------------------------------------------------------------
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%-------------------------------用紙設定--------------------------------
+
+%A4 = 210mm × 297mm
+%右余白 = 17mm，左余白 = 17mm，上余白 = 25mm，下余白 = 30mm
+%行間 = 0.8
+\setlength{\textwidth}{176mm}%210-34
+\setlength{\textheight}{242mm}%297-55
+\setlength{\columnsep}{10mm} %2つのカラム間のスペース
+\setlength{\columnseprule}{0mm}
+\setlength{\columnwidth}{85mm}
+\setlength{\belowdisplayshortskip}{100pt plus 1pt minus 1pt} % 数式の空白
+\setlength{\abovedisplayshortskip}{100pt plus 1pt minus 1pt} % 数式の空白
+\setlength{\topmargin}{-1in}
+\addtolength{\topmargin}{25mm} %上部空白
+\setlength{\headheight}{0mm}
+\setlength{\headsep}{0mm}
+\setlength{\footskip}{0mm}
+\setlength{\oddsidemargin}{-10.4mm}
+\setlength{\evensidemargin}{-10.4mm}
+\setlength{\intextsep}{1zh}
+
+\renewcommand{\baselinestretch}{0.92} %行間の調整
+
+\setcounter{topnumber}{100}
+\setcounter{bottomnumber}{100}
+\setcounter{totalnumber}{100}
+\renewcommand{\topfraction}{1.0}
+\renewcommand{\bottomfraction}{1.0}
+\renewcommand{\textfraction}{0.0}
+\renewcommand{\floatpagefraction}{0.0}
+
+%-----------------------------------------------------------------------
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%-----------------------セクション・タイトル設定------------------------
+
+\def\section{
+  \@startsection{section}{1}{\z@}
+  {3.25ex plus1ex minus.2ex}{1.5ex plus .2ex}{\Large\bf}}
+\def\subsection{
+  \@startsection{subsection}{2}{\z@}
+  {3.25ex plus1ex minus.2ex}{1.5ex plus .2ex}{\large\bf}}
+\def\subsubsection{
+  \@startsection{subsubsection}{2}{\z@}
+  {3.25ex plus1ex minus.2ex}{1.5ex plus .2ex}{\bf}}
+  
+%-----------------------------------------------------------------------
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%--------------------------------図・表---------------------------------
+
+\def\fnum@figure{\small{\bf Fig.\ \thefigure}\ \,}
+\def\fnum@table{\small{\bf Table\ \thetable}\ \,}
+
+\long\def\@makecaption#1#2{
+  \vskip 0pt % abovecaptionskip
+  \setbox\@tempboxa\hbox{#1 #2}
+  \ifdim \wd\@tempboxa >\hsize 
+    \begin{list}{}{\labelwidth 0pt \leftmargin 1.75cm \itemindent -0.75cm
+              \rightmargin 0.25cm}
+      \item[\small#1] \small#2
+    \end{list}
+  \else \hbox
+    to\hsize{\hfil\box\@tempboxa\hfil} 
+    \vskip 4pt  % belowcaptionskip
+  \fi}
+
+%-----------------------------------------------------------------------
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%--------------------------------章建て---------------------------------
+
+ \def\thesection {\@chapappl \arabic{section} \@chapappr}
+ \def\thepart {\arabic{section}}
+ \def\thesubsection {\thepart.\arabic{subsection}}
+ \def\thesubsubsection {\thesubsection .\arabic{subsubsection}}
+ \def\theparagraph {\thesubsubsection.\arabic{paragraph}}
+ \def\thesubparagraph {\theparagraph.\arabic{subparagraph}}
+ \def\@chapappl{}
+ \def\@chapappr{.}
+ 
+%-----------------------------------------------------------------------
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%-----------------------------------------------------------------------
+%	 図を貼り付けるためのマクロ	
+%	 <\begin{fig}{場所}{サイズ}{ファイル名}{caption}{label}>
+%-----------------------------------------------------------------------
+
+\newenvironment{fig}[5]
+{
+\begin{figure}[#1]
+\centering%
+\includegraphics[scale=#2,clip]{figure/#3}%
+\caption{#4}%
+\label{#5}%
+\end{figure}
+}
+
+%-----------------------------------------------------------------------
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%--------------------------------その他---------------------------------
+
+%ラプラス変換の記号
+\newcommand{\laplace}{\mathcal{L}}
+
+%L∞,L2の記号
+\newcommand{\linf}{\mathcal{L}^{\infty}}
+\newcommand{\ltwo}{\mathcal{L}^2}
+
+%転置記号の定義
+\newcommand{\T}{\mathsf{T}}
+
+%θ,ω,vの大文字化
+\newcommand{\btheta}{\bm{\theta}}
+\newcommand{\bomega}{\bm{\omega}}
+\newcommand{\bv}{\bm{v}}
+
+\newtheorem{problem}{問題}
+%  \renewcommand{\thetheorem}{} % suppress numbering
+  % put a box at the end of theorem
+  \renewcommand{\endproblem}{\hfill■\endtrivlist}
+
+\newtheorem{example}{例}
+%  \renewcommand{\thetheorem}{} % suppress numbering
+  % put a box at the end of theorem
+  \renewcommand{\endexample}{\hfill■\endtrivlist}
+
+\newtheorem{theorem}{定理}
+%  \renewcommand{\thetheorem}{} % suppress numbering
+  % put a box at the end of theorem
+  \renewcommand{\endtheorem}{\hfill□\endtrivlist}
+
+\newtheorem{definition}{定義}
+%  \renewcommand{\thedefinition}{} % suppress numbering
+  % put a box at the end of definition
+  \renewcommand{\enddefinition}{\hfill□\endtrivlist}
+
+\newtheorem{lemma}{補題}
+%  \renewcommand{\thelemma}{} % suppress numbering
+  % put a box at the end of lemma
+  \renewcommand{\endlemma}{\hfill■\endtrivlist}
+
+\newtheorem{proof}{証明}
+%  \renewcommand{\thelemma}{} % suppress numbering
+  % put a box at the end of lemma
+  \renewcommand{\endlemma}{\hfill□\endtrivlist}
+  
+%-----------------------------------------------------------------------

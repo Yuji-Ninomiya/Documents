@@ -1,0 +1,407 @@
+\documentclass[a4paper,10pt]{jarticle}
+
+% レイアウト
+\setlength{\hoffset}{0cm}
+\setlength{\oddsidemargin}{-3mm}
+\setlength{\evensidemargin}{-3cm}
+\setlength{\marginparsep}{0cm}
+\setlength{\marginparwidth}{0cm}
+\setlength{\textheight}{24.7cm}
+\setlength{\textwidth}{17cm}
+\setlength{\topmargin}{-45pt}
+
+
+\renewcommand{\baselinestretch}{1.6}
+\renewcommand{\floatpagefraction}{1}
+\renewcommand{\topfraction}{1}
+\renewcommand{\bottomfraction}{1}
+\renewcommand{\textfraction}{0}
+% \renewcommand{\thefootnote{\arabic{footnote}}} % 脚注
+
+\renewcommand{\thesection}{3.\arabic{section}} % セクションの前に章番号を追加
+
+% パッケージ
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{amsmath,amssymb,epsfig}
+\usepackage{eucal}
+\usepackage{bm}
+\usepackage{ascmac}
+\usepackage{pifont}
+\usepackage{multirow}
+\usepackage{enumerate}
+\usepackage{cases}
+\usepackage{type1cm}
+\usepackage{cancel}
+\usepackage{url}
+\usepackage{cite}
+%\usepackage{color}
+\usepackage[dvipdfmx]{color}
+\usepackage{caption}
+\usepackage[caption=false]{subfig}
+\captionsetup[figure]{labelsep=space}
+\usepackage{url}
+
+% 擬似コード作成用
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{setspace}
+\input{../sty/jdummy.def}
+
+% カウンタの設定
+\setcounter{section}{0}
+\setcounter{subsection}{0}
+\setcounter{subsubsection}{0}
+\setcounter{equation}{0}
+
+% キャプションの図をFigに変更
+\renewcommand{\figurename}{Fig.}
+\renewcommand{\tablename}{Tab.}
+
+% 式番号を式(章番号.番号)に
+\makeatletter
+\renewcommand{\theequation}{\arabic{section}.\arabic{equation}}
+\@addtoreset{equation}{section}
+\makeatother
+
+% タイトル部分
+\title{\vspace{-20truemm}
+{\normalsize \rightline{平成29年\ 5月\ 17日}}  %日付
+{\large 視覚情報解析特論\\} %科目名
+{\large Computer Vision A Modern Approach, Chapter 3 (pp.45-47)\\} %章番号とページ
+幾何学的カメラキャリブレーション\\ %タイトル
+{\large Geometric Camera Calibration\\}
+\date{}
+\vspace{-2truemm}}
+\author{西田研究室 17344219 二宮 悠二} %番号氏名
+
+% ドキュメントの開始
+\begin{document}
+% 表紙
+\titlepage
+\maketitle
+
+本章では校正プロセスを次の項目に分けて考える．まず，\ref{sec1}節にて同時座標系におけるカメラの射影変換行列$ M $の推定方法について述べ，\ref{sec2}節にてこの行列から内部変数および外部変数を推定する方法を示す．なお．\ref{sec3}節では，これらのプロセスを適用できない可能性のある退縮点構成について述べる．最後に，\ref{assignment}節にて質問のあったスケール因子の必要性を課題として示す．
+
+
+\section{射影行列の推定}
+\label{sec1}
+以降の項ではカメラに歪みはないものとする．これは，ピンホールカメラを想定しているためである．なお，カメラは世界座標系の$ z $軸に対して，マイナス方向を向いているものと定義する．ここで，第2章に述べた定理2.1により次のことが示されている．
+%
+\begin{description}
+ \item[定理2.1]\mbox{}\\
+　$ M = [A \hspace{4mm} {\bm b}] $を$ 3 \times 4 $の行列とし，$ {\bm a}^T_i (i = 1,2,3) $を，$ M $の左端の3列からなる\\
+行列$ A $の$ i $番目の行とする．このとき，\\
+\hspace{6mm}$ M $が透視射影行列であるための必要十分条件は，$ \mathrm{det}M \neq 0 $ である．
+\end{description}
+%
+この場合に定理2.1から言えることは，透視射影行列$ M $が任意の特異でない行列であるということである．
+
+第2章で得られた画像平面への射影方程式より
+%
+\begin{equation}
+ {\bm p} =\frac{1}{z} {\bm P} \hspace{1cm}ただし，M = K[ {\bm R} \hspace{4mm} {\bm t}]
+\label{equ1}
+\end{equation}
+%
+ここで，$ {\bm p} $は画像点の位置ベクトル，$ {\bm P} $は世界座標系の同次ベクトルであり，それぞれ $ {\bm p} = [u \hspace{4mm} v \hspace{4mm} 1]^T $，$ {\bm P} = [W_x \hspace{4mm} W_y \hspace{4mm} W_z \hspace{4mm} 1]^T $と表される．$ M $は前述した射影変換行列を内部パラメータ行列と外部パラメータ行列を用いて表したものである．$ M = [{\bm m}^T_1 \hspace{4mm} {\bm m}^T_2 \hspace{4mm} {\bm m}^T_3 ]^T $とおき，以上のパラメータを(\ref{equ1})式へ代入してこれを解くと
+%
+\begin{equation*}
+\left[
+ \begin{array}{c}
+  u \\
+  v \\
+  1 \\
+ \end{array}
+\right] = \frac{1}{z}
+\left[
+\begin{array}{c}
+ {\bm m}^T_1 \\
+ {\bm m}^T_2 \\
+ {\bm m}^T_3 \\
+\end{array}
+\right] {\bm P}
+\end{equation*}
+%
+より
+%
+\begin{equation*}
+ z = {\bm m}_3 \cdot {\bm P}
+\end{equation*}
+%
+したがって
+%
+\begin{equation}
+ \left\{
+ \begin{array}{c}
+  u = \frac{{\bm m}_1 \cdot {\bm P}}{{\bm m}_3 \cdot {\bm P}} \\
+  v = \frac{{\bm m}_2 \cdot {\bm P}}{{\bm m}_3 \cdot {\bm P}}
+ \end{array}
+ \right.
+\label{equ2}
+\end{equation}
+%
+が得られ，画像点の座標を表すことができる．この式から分母を消去することで
+%
+\begin{equation}
+ \left\{
+  \begin{array}{c}
+   ({\bm m}_1 - u_i{\bm m}_3) \cdot {\bm P} = 0\\
+   ({\bm m}_2 - u_i{\bm m}_3) \cdot {\bm P} = 0\\
+  \end{array}
+ \right.
+\label{equ3}
+\end{equation}
+%
+とする．この(\ref{equ3})式について，$ n $個の点に関する制約を集めると，行列$ M $に12個の係数を持つ$ 2n $個の係数を持つ
+とは，行列$ M $が内・外部パラメータ行列による$ 3 \times 4 $行列であるというところから来ている．
+$ {\bm P} $を先ほどの$ n $個の制約に順じた状態で行列にて定義すると
+%
+\begin{equation}
+ \mathcal{P} \overset{\mathrm{def}}{=} 
+ \left[
+  \begin{array}{ccc}
+   {\bm P}^T_1 & {\bm 0}^T   & -u_1 {\bm P}^T_1 \\
+   {\bm 0}^T   & {\bm P}^T_1 & -v_1 {\bm P}^T_1 \\
+   \ldots      & \ldots      & \ldots           \\
+   {\bm P}^T_n & {\bm 0}^T   & -u_n {\bm P}^T_n \\
+   {\bm 0}^T   & {\bm P}^T_n & -v_n {\bm P}^T_n \\
+  \end{array}
+ \right] , \hspace{2mm} {\bm m} \overset{\mathrm{def}}{=}
+ \left[
+  \begin{array}{c}
+   {\bm m}_1 \\
+   {\bm m}_2 \\
+   {\bm m}_3 \\
+  \end{array}
+ \right] = 0
+\label{equ4}
+\end{equation}
+%
+として，$ \mathcal{P} {\bm m} = 0 $と書ける．このことから，$ n \geq 6 $の場合，同次最小二乗法を用いて，$ |\mathcal{P} {\bm m}|^2 $を最小化する単位ベクトル$ m $（行列$ M $）の値を固有値問題の解として計算できる．
+
+
+\section{内部変数，外部変数の推定}
+\label{sec2}
+%
+ひとたび射影行列を推定できれば，カメラの内部変数，外部変数に関する次の射影変換行列の式
+%
+\begin{equation}
+ M =
+ \left[
+  \begin{array}{cc}
+   \alpha {\bm r}^T_1 - \alpha {\rm cot} \theta {\bm r}^T_2 + u_0 {\bm r}^T_3 & \alpha t_x - \alpha {\rm cot} \theta t_y + u_0 t_z \\
+   \dfrac{\beta}{ {\rm sin} \theta} {\bm r}^T_2 + v_0 {\bm r}^T_3 & \dfrac{\beta}{ {\rm sin} \theta} t_y + v_0 t_z \\
+   {\bm r}^T_3 & t_z \\
+  \end{array}
+ \right]
+\label{equ5}
+\end{equation}
+%
+を用いて，次のように変数を復元できる．
+%
+\begin{equation}
+ \rho [A \hspace{4mm} {\bm b}] = K [ {\bm R} \hspace{4mm} {\bm t} ] \iff \rho \left[
+  \begin{array}{c}
+   {\bm a}^T_1 \\
+   {\bm a}^T_2 \\
+   {\bm a}^T_3 \\
+  \end{array}
+ \right] = \left[
+  \begin{array}{c}
+   \alpha {\bm r}^T_1 - \alpha \verb|cot| \theta {\bm r}^T_2 + u_0 {\bm r}^T_3 \\
+   \frac{\beta}{ sin \theta} {\bm r}^T_2 + v_0 {\bm r}^T_3 \\
+   {\bm r}^T_3 \\
+  \end{array}
+\right]
+\label{equ6}
+\end{equation}
+%
+ここで，定理2.1と同様に，$ |\mathcal{P} {\bm m}| M = [ A \hspace{4mm} {\bm b} ] $とし，この行の1行目から3行目をそれぞれ$ {\bm a}^T_1, {\bm a}^T_2, {\bm a}^T_3 $とする．また，復元する行列$ M $が単位フロベニウスノルムとなる事実をスケール因子$ \rho $により考慮する．単位フロベニウスノルムは以下のように定義される．
+%
+\begin{description}
+ \item[フロベニウスノルム]\mbox{}\\
+　行列の全成分の二乗和の平方根．行列$ A $のフロベニウスノルムは次のように表される．\\
+　\hspace{5.3cm} $ \|A\|_F = \sqrt{ \displaystyle \sum_{i,j} a^2_{ij}} $
+\end{description}
+%
+したがって，行列$ M $が単位フロベニウスノルムとなるとは，$ |M| = | {\bm m} | = 1 $となることを意味する．
+
+回転行列の行は単位長で直交することから，
+%
+\begin{equation}
+  \left\{
+  \begin{array}{l}
+   \rho = \varepsilon / |{\bm a}_3| \\
+   {\bm r}_3 = \rho {\bm a}_3 \\
+   u_0 = {\rho}^2 ({\bm a}_1 \cdot {\bm a}_3) \\
+   v_0 = {\rho}^2 ({\bm a}_2 \cdot {\bm a}_3) \\
+  \end{array}
+ \right.
+ ~~~~~~~ただし，\hspace{2mm}\varepsilon = \mp 1
+\label{equ8}
+\end{equation}
+%
+を得る．ここで，$ \varepsilon = \mp 1 $とあるのは，$ {\bm a}_3 $が単位ベクトルであり，なおかつ，カメラが$ z $軸のマイナス方向を向いているためである．
+
+同様に，回転行列の性質を用いて(\ref{equ6})式の第1行目と第3行目，第2行目と第3行目の外積をとると次式を得る．
+%
+\begin{equation}
+ \left\{
+  \begin{array}{l}
+   {\rho}^2 ( {\bm a}_1 \times {\bm a}_3 ) = - \alpha {\bm r}_2 - \alpha {\rm cot} \theta {\bm r}_1 \\
+   {\rho}^2 ( {\bm a}_2 \times {\bm a}_3 ) = \dfrac{\beta}{{\rm sin} \theta} {\bm r}_1 \\
+  \end{array}
+ \right. ，\hspace{2mm} \left\{
+  \begin{array}{l}
+   {\rho}^2 | {\bm a}_1 \times {\bm a}_3 | = \dfrac{ |\alpha| }{ {\rm sin} \theta } \\
+   {\rho}^2 | {\bm a}_2 \times {\bm a}_3 | = \dfrac{ |\beta| }{ {\rm sin} \theta } \\
+  \end{array}
+ \right.
+\label{equ9}
+\end{equation}
+%
+さらにこの(\ref{equ9})式から
+%
+\begin{equation}
+ \left\{
+  \begin{array}{l}
+   {\rm cos} \hspace{1mm} \theta = - \dfrac{ ( {\bm a}_1 \times {\bm a}_3 ) \cdot ( {\bm a}_2 \times {\bm a}_3 ) }{ | {\bm a}_1 \times {\bm a}_3 | | {\bm a}_2 \times {\bm a}_3 | } \\
+   \alpha = {\rho}^2 | {\bm a}_1 \times {\bm a}_3 | {\rm sin} \hspace{0.5mm} \theta \\
+   \beta = {\rho}^2 | {\bm a}_2 \times {\bm a}_3 | {\rm sin} \hspace{0.5mm} \theta \\
+  \end{array}
+ \right.
+\label{equ10}
+\end{equation}
+%
+を得る．このような変形が可能であるのは，$ \alpha , \hspace{2mm} \beta $の符号が事前に正であると分かっているためである．
+
+同じく(\ref{equ9})式左下より次式を得る．
+%
+\begin{equation}
+ \left\{
+  \begin{array}{l}
+   {\bm r}_1 = \dfrac {{\rho}^2 {\rm sin} \theta}{\beta} ( {\bm a}_2 \times {\bm a}_3) = \dfrac{1}{|{\bm a}_2 \times {\bm a}_3|} ({\bm a}_2 \times {\bm a}_3) \\
+   {\bm r}_2 = {\bm r}_3 \times {\bm r}_1\\
+  \end{array}
+ \right.
+\label{equ11}
+\end{equation}
+%
+また，(\ref{equ6})式から次式を得ることができ，これにより平行移動ベクトルを復元することができる．
+%
+\begin{equation}
+ \begin{array}{l}
+   K {\bm t} = \rho {\bm b} \\
+   \hspace{3.5mm} {\bm t} = \rho K^{-1} {\bm b} \\
+ \end{array}
+\label{equ12}
+\end{equation}
+
+世界座標系の原点がカメラの前面にあるか背面にあるかで$ t_z $が決まるため，(\ref{equ5})式の1行2列，2行2列の項の式から一意的な解が求まるのである．本章にて求めた各パラメータとその導出式を{\bf Tab.}\ref{table1}に示す．
+%
+\begin{table}[htb]
+  \begin{center}
+    \caption{各パラメータとその導出式}
+    \begin{tabular}{c|c} \hline
+      パラメータ & 導出式 \\ \hline \hline
+      $ \alpha $ & $ {\rho}^2 |{\bm a}_1 \times {\bm a}_3| {\rm sin} \theta $ \\ \hline
+      $ \beta $ & $ {\rho}^2 |{\bm a}_2 \times {\bm a}_3| {\rm sin} \theta $ \\ \hline
+      $ \theta $ & $ {\rm cos}^{-1} \left( - \dfrac{({\bm a}_1 \times {\bm a}_3) \cdot ({\bm a}_2 \times {\bm a}_3 )}{|{\bm a}_1 \times {bm a}_3 | | {\bm a}_2 \times {\bm a}_3| } \right) $ \\ \hline
+      $ u_0 $ & $ {\rho}^2 ( {\bm a}_1 \times {\bm a}_3 ) $ \\ \hline
+      $ v_0 $ & $ {\rho}^2 ( {\bm a}_2 \times {\bm a}_3 ) $ \\ \hline
+      $ {\bm r}_1 $ & $ \dfrac {{\rho}^2 {\rm sin} \theta}{\beta} ( {\bm a}_2 \times {\bm a}_3) = \dfrac{1}{|{\bm a}_2 \times {\bm a}_3|} ({\bm a}_2 \times {\bm a}_3) $ \\ \hline
+      $ {\bm r}_2 $ & $ {\bm r}_3 \times {\bm r}_1 $ \\ \hline
+      $ {\bm r}_3 $ & $ \rho {\bm a}_3 $ \\ \hline
+      $ {\bm t} $ & $ \rho K^{-1} {\bm b} $ \\ \hline
+    \end{tabular}
+    \label{table1}
+  \end{center}
+\end{table}
+%
+
+\section{退縮点構成}
+\label{sec3}
+%
+退縮点構成は，射影行列$ M $が求められない可能性のある場所に点$ P_i $がある際に適用する．ここで退縮とは，配置を満足させるような一意な特定のクラスの変換の解を決定できない状況のことをいう．
+
+データ点$ p_i (i = 1, 2, \ldots ,n) $が誤差なく計測できる場合に焦点をあて，その時の行列$ \mathcal P $のゼロ空間(null space)を同定する．ゼロ空間とは，ベクトル$ {\bm l} $により$ \mathcal P {\bm l} = 0 $となるように形成された$ {\mathbb R}^{12} $の部分集合のことである．
+
+$ {\bm l} $を前述の$ \mathcal P {\bm l} = 0 $を満たすようなベクトルとし，$ {\bm \lambda} = [ l_1 \hspace{3mm} l_2 \hspace{3mm} l_3 \hspace{3mm} l_4 ]^T $, $ {\bm \mu} = [ l_5 \hspace{3mm} l_6 \hspace{3mm} l_7 \hspace{3mm} l_8 ]^T $, $ {\bm \nu} = [ l_9 \hspace{3mm} l_{10} \hspace{3mm} l_{11} \hspace{3mm} l_{12} ]^T $とおくと，次式を得る(ただし，$ {\bm l} = [ {\bm \lambda} \hspace{3mm} {\bm \mu} \hspace{3mm} {\bm \nu} ]^T $)．
+%
+\begin{equation}
+ 0 = \mathcal P {\bm l} =
+ \left[
+  \begin{array}{ccc}
+   {\bm P}^T_1 & {\bm 0}^T & -u_1 {\bm P}^T_1 \\
+   {\bm 0}^T & {\bm P}^T_1 & -v_1 {\bm P}^T_1 \\
+   \cdots & \cdots & \cdots \\
+   {\bm P}^T_n & {\bm 0}^T & -u_n {\bm P}^T_1 \\
+   {\bm 0}^T & {\bm P}^T_n & -v_n {\bm P}^T_1 \\
+  \end{array}
+ \right] \left[
+  \begin{array}{c}
+   {\bm \lambda} \\
+   {\bm \mu} \\
+   {\bm \nu} \\
+  \end{array}
+ \right] = \left[
+  \begin{array}{c}
+   {\bm P}^T_1 {\bm \lambda} - u_1 {\bm P}^T_1 {\nu} \\
+   {\bm P}^T_1 {\bm \nu} - v_1 {\bm P}^T_1 {\nu} \\
+   \cdots \\
+   {\bm P}^T_n {\bm \lambda} - u_n {\bm P}^T_n {\nu} \\
+   {\bm P}^T_n {\bm \nu} - v_n {\bm P}^T_n {\nu} \\
+  \end{array}
+\right]
+\label{equ13}
+\end{equation}
+%
+この式の導出方法は，前述の(\ref{equ4})式と同様である．(\ref{equ2})式，(\ref{equ13})式より$ u_i, \hspace{1mm} v_i $を消去することにより次式を得る．
+%
+\begin{equation}
+ \left\{
+  \begin{array}{l}
+   {\bm P}^T_i {\bm \lambda} - \dfrac{{\bm m}^T_1 {\bm P}_i}{{\bm m}^T_3 {\bm P}_i} {\bm P}^T_i {\bm \nu} = 0 \\
+   {\bm P}^T_i {\bm \mu} - \dfrac{{\bm m}^T_2 {\bm P}_i}{{\bm m}^T_3 {\bm P}_i} {\bm P}^T_i {\bm \nu} = 0 \\
+  \end{array}
+ \right. \hspace{1cm} (i = 1, \ldots ,n)
+\label{equ14}
+\end{equation}
+%
+これは射影行列を求めたときの$ \mathcal P {\bm m} = 0 $と同様である．さらにこの式から分母を消去することにより次式を得る．
+%
+\begin{equation}
+ \left\{
+  \begin{array}{l}
+   {\bm P}^T_i ( {\bm \lambda} {\bm m}^T_3 - {\bm m}^T_1 {\bm \nu}^T ) {\bm P}_i = 0 \\
+   {\bm P}^T_i ( {\bm \mu} {\bm m}^T_3 - {\bm m}^T_2 {\bm \nu}^T ) {\bm P}_i = 0\\
+  \end{array}
+ \right. \hspace{1cm} (i = 1, \ldots ,n)
+\label{equ15}
+\end{equation}
+%
+このことから，$ {\bm \lambda} = {\bm m}_1, \hspace{2mm} {\bm \mu} = {\bm m}_2, \hspace{2mm} {\bm \nu} = {\bm m}_3 $に関するベクトル$ {\bm l} $がこれらの方程式の解となることが分かる．
+%
+
+
+\section{課題}
+\label{assignment}
+本節では，質問としてあげられた(\ref{equ6})式のスケール因子についての説明を行う．
+
+% ここで考えているのはあくまで射影変換
+
+まず，スケール因子がなぜ必要なのかということであるが，本章の最初に述べた(\ref{equ1})式が最も一般的な透視射影行列の式であり，これを，一般性を失わずに$ M = [ A \hspace{4mm} {\bm b} ] $と表記するために，スケール因子に依存した形で定義しなければならないからである．
+こうすることで，射影行列を同次物体として考えることができる．一方で，アフィン変換にはスケーリングが含まれている．アフィンカメラにおいては物体が観測しているカメラからほぼ一定にあると考えられるため透視射影の近似として捉えられる．
+
+また，(\ref{equ2})式から，$ z $は$ M $と$ {\bm P} $に独立ではないことが明らかである．スケール因子に依存した$ M $が定義される場合，これを透視射影行列の標準系とし，この場合においてのみ，$ z $が点$ P $の正しい奥行きとして与えられる．
+したがって，(\ref{equ6})式の等式を得るには，スケール因子が必要なのである．
+
+
+% 参考文献
+\begin{thebibliography}{99}
+\addcontentsline{toc}{section}{参考文献}
+\bibitem{1} David A., Forsyth, Jean Ponce，”Computer Vision A Modern Approach”，pp.21-37, 45-47．
+\bibitem{2} MathWorks，”カメラキャリブレーションとは”，$<$\url{https://jp.mathworks.com/help/vision/ug/camera-calibration.html}$>$，(アクセス日：2017/5/16)．
+\bibitem{3} FNの高校物理，”ベクトルの内積と外積の成分表示”，$<$\url{http://fnorio.com/0126scalar_&_vector_product/scalar_&_vector_product.html}$>$，(アクセス日：2017/5/16)．
+\end{thebibliography}
+
+\end{document}

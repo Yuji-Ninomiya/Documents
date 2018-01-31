@@ -1,0 +1,165 @@
+\documentclass[a4paper,11pt]{jarticle}
+
+% レイアウト
+\setlength{\hoffset}{0cm}
+\setlength{\oddsidemargin}{-3mm}
+\setlength{\evensidemargin}{-3cm}
+\setlength{\marginparsep}{0cm}
+\setlength{\marginparwidth}{0cm}
+\setlength{\textheight}{24.7cm}
+\setlength{\textwidth}{17cm}
+\setlength{\topmargin}{-45pt}
+
+
+\renewcommand{\baselinestretch}{1.2}
+\renewcommand{\floatpagefraction}{1}
+\renewcommand{\topfraction}{1}
+\renewcommand{\bottomfraction}{1}
+\renewcommand{\textfraction}{0}
+\renewcommand\thefootnote{\arabic{footnote})}
+
+% パッケージ
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{amsmath,amssymb,epsfig}
+\usepackage{eucal}
+\usepackage{bm}
+\usepackage{ascmac}
+\usepackage{pifont}
+\usepackage{multirow}
+\usepackage{enumerate}
+\usepackage{cases}
+\usepackage{type1cm}
+\usepackage{cancel}
+\usepackage{url}
+\usepackage{cite}
+%\usepackage{color}
+\usepackage[dvipdfmx]{color}
+\usepackage{caption}
+\usepackage[caption=false]{subfig}
+\captionsetup[figure]{labelsep=space}
+\usepackage{here}
+
+% 擬似コード作成用
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{setspace}
+\input{../sty/jdummy.def}
+
+% カウンタの設定
+\setcounter{section}{0}
+\setcounter{subsection}{0}
+\setcounter{subsubsection}{0}
+\setcounter{equation}{0}
+
+% キャプションの図をFigに変更
+\renewcommand{\figurename}{Fig.}
+\renewcommand{\tablename}{Tab.}
+
+% 式番号を式(章番号.番号)に
+\makeatletter
+\renewcommand{\theequation}{\arabic{equation}}
+\@addtoreset{equation}{section}
+\makeatother
+
+% タイトル部分
+\title{\vspace{-20truemm}
+{\normalsize \rightline{平成29年\ 10月\ 22日}}
+{\large 確率システム制御特論\\}
+第3回演習問題\\
+\date{}
+\vspace{-2truemm}}
+\author{機械知能工学専攻 知能制御工学コース \hspace{3mm} 17344219 \ 二宮 悠二}
+%---------------------------------------------
+% ドキュメントの開始
+\begin{document}
+\parindent = 0pt % 字下げoff
+% 表紙
+\titlepage
+\maketitle
+%---------------------------------------------
+% 課題内容
+{\Large{\bf 課題}}
+\vspace{2mm}\\
+%---------------------------------------------
+\ \ 本講義で扱った最小二乗推定法は，最小二乗法に基づく．さて，その最小二乗法には，時系列データが次々に入ってきてもすべてのデータを蓄えることなく最小二乗法を続けることのできる「逐次最小二乗法（RLS）」という手法がある．これはカルマンフィルタにも関わりのある手法である．\\
+\ \ このRLS法のアルゴリズムを調べてレポートにせよ．\\\\
+%---------------------------------------------
+%---------------------------------------------
+{\Large{\bf 考察}}
+\vspace{2mm}\\
+%---------------------------------------------
+\ \ 本レポートでは，逐次最小二乗推定法（Recursive Least-Squares estimation method）についてまとめる．\\
+\ \ この推定手法は，カルマンフィルタの特殊な場合と言える手法である．
+%
+最小二乗法に基づいた適応フィルタで，LMS（Leats Mean Square）アルゴリズム{\cite{LMS}}と比べると目標値への収束速度が速いが，必要とされる演算量は大幅に増加する．\\
+\ \ RLS アルゴリズムを導入するための評価関数には，非定常環境下でも信号の統計的な性質の変動に追従できるよう重み係数が導入される．よく用いられるのは「指数重み係数」あるいは「忘却係数」と呼ばれるもので，それを用いた評価関数$ J(n) $は次式で与えられる．
+%-----------------------------------
+\begin{equation}
+ J(n) = \sum^n_{k=1} \lambda^{n-k} \left\{ d(k) - \mbox{\boldmath$w$}^T(n) \mbox{\boldmath$x$}(k) \right\}^2
+\end{equation}
+%-----------------------------------
+ただし，$ n = 1,2, \cdots , N-1 $であり，$ N $はインパルス長である．ここで，$ d(k)，~ \mbox{\boldmath$x$}(i)，~ \mbox{\boldmath$w$}(n) $は，各々，システム同定問題における未知システムからの出力，適応フィルタの入力ベクトルと係数ベクトルであり，$ \mbox{\boldmath$x$}(k) $と$ \mbox{\boldmath$w$}(n) $は次式で与えられる．
+%-----------------------------------
+\begin{eqnarray}
+ \mbox{\boldmath$x$}^T(k) & = & \left[ x(k), ~ x(k-1), ~ \cdots , ~ x(k - N + 1) \right] \\
+ \mbox{\boldmath$w$}^T(n) & = & \left[ w_0(n), ~ w_1(n), ~ \cdots , ~ w_{N - 1}(n) \right]
+\end{eqnarray}
+%-----------------------------------
+(1)式中の忘却係数$ \lambda $は$ 1 $に近いが$ 1 $より小さな正の定数である．(1)式の$ J(n) $を最小にする$ \widehat{\mbox{\boldmath$w$}}(n) $は次の正規方程式を満たす．
+%-----------------------------------
+\begin{equation}
+ \mbox{\boldmath$R$}(n)\widehat{\mbox{\boldmath$w$}}(n) = \mbox{\boldmath$\theta$}(n)
+\end{equation}
+%-----------------------------------
+ただし，
+%-----------------------------------
+\begin{eqnarray}
+ \mbox{\boldmath$R$}(n) & = & \sum^n_{k=1} \lambda^{n-k} \mbox{\boldmath$x$}(k) \mbox{\boldmath$x$}^T(k) \\
+ \mbox{\boldmath$\theta$}(n) & = & \sum^n_{k=1} \lambda^{n-k} \mbox{\boldmath$x$}(k) d(k)
+\end{eqnarray}
+%-----------------------------------
+である．(5)，(6)式を再帰的に記述し，(4)式を$ \widehat{\mbox{\boldmath$w$}}(n) $に関して再帰的に解き，かつ，逆行列の補助定理を用いることにより，標準的な RLS アルゴリズムが以下のように得られる{\cite{LMS}}．\\
+\ \ まず，次式の初期化を行う．
+%-----------------------------------
+\begin{equation}
+ \mbox{\boldmath$P$}(0) \delta^{-1} \mbox{\boldmath$I$}, ~ \widehat{\mbox{\boldmath$w$}}(0) = \mbox{\boldmath$O$}
+\end{equation}
+%-----------------------------------
+\ \ 続いて，繰り返し回数$ n = 1,2, \cdots $において以下の演算を行う．
+%-----------------------------------
+\begin{eqnarray}
+ \mbox{\boldmath$g$}(n) & = & \dfrac{\mbox{\boldmath$P$}(n-1)\mbox{\boldmath$x$}(n)}{\lambda + \mbox{\boldmath$x$}^T(n)\mbox{\boldmath$P$}(n-1)\mbox{\boldmath$x$}(n)} \\
+ v(n) & = & d(n) - \widehat{\mbox{\boldmath$w$}}^T(n-1) \mbox{\boldmath$x$}(n) \\
+ \widehat{\mbox{\boldmath$w$}}^T(n) & = & \widehat{\mbox{\boldmath$w$}}(n-1) + \mbox{\boldmath$g$}(n) v(n) \\
+ \mbox{\boldmath$P$}(n) & = & \lambda^{-1} \left\{ \mbox{\boldmath$P$}(n-1) - \mbox{\boldmath$g$}(n) \mbox{\boldmath$x$}^T(n) \mbox{\boldmath$P$}(n-1) \right\}
+\end{eqnarray}
+%-----------------------------------
+ここで，$ \delta $は小さな正の定数であり，行列$ \mbox{\boldmath$P$}(n) $は次式で定義されていると解釈できる．
+%-----------------------------------
+\begin{equation}
+ \mbox{\boldmath$P$}^{-1}(n) = \mbox{\boldmath$R$}(n) + \delta \lambda^n \mbox{\boldmath$I$}
+\end{equation}
+%-----------------------------------
+\ \ すなわち，標準的な RLS アルゴリズムでは，(1)式の評価関数を最小化する解を求めているのではなく，次式の評価関数を最小化する解を求めていることになる．
+%-----------------------------------
+\begin{equation}
+ J(n) = \delta \lambda^n \left|| \mbox{\boldmath$w$}(n) \right||^2_2 + \sum^n_{k=1} \lambda ^{n-k} \left\{ d(k) - \mbox{\boldmath$w$}^T(n) \mbox{\boldmath$x$}(k) \right\}^2\end{equation}
+%-----------------------------------
+\ \ 以上のことから RLS アルゴリズムの特徴として，以下のようなことが挙げられる．
+%-----------------------------------
+\begin{itemize}
+ \item RLS アルゴリズムがカルマンフィルタの特別な場合として解釈できる．
+ \item 次数$ N $に関して固定のアルゴリズムのみでなく，次数に関して再帰的なアルゴリズムも存在する．
+ \item 標準的なアルゴリズムは数値不安定性の問題を抱えているため，その改良法が提案されている．
+ \item 標準的なアルゴリズムの演算量は$ O(N^2) $であるが，$ O(N) $の高速演算が存在する．
+\end{itemize}
+%-----------------------------------
+
+% 参考文献
+\begin{thebibliography}{99}
+\addcontentsline{toc}{section}{参考文献}
+\bibitem{1} 足立 修一・丸田 一郎，”カルマンフィルタの基礎”，東京電機大学出版局，pp.38-41，2012．
+\bibitem{LMS} 電子情報通信学会，”知識の森”，電子情報通信学会，1郡-9偏-3章，2011．
+\end{thebibliography}
+
+
+\end{document}

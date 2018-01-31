@@ -1,0 +1,93 @@
+\documentclass[a4paper,11pt]{jarticle}
+
+% レイアウト
+\setlength{\hoffset}{0cm}
+\setlength{\oddsidemargin}{-3mm}
+\setlength{\evensidemargin}{-3cm}
+\setlength{\marginparsep}{0cm}
+\setlength{\marginparwidth}{0cm}
+\setlength{\textheight}{24.7cm}
+\setlength{\textwidth}{17cm}
+\setlength{\topmargin}{-45pt}
+
+
+\renewcommand{\baselinestretch}{1.2}
+\renewcommand{\floatpagefraction}{1}
+\renewcommand{\topfraction}{1}
+\renewcommand{\bottomfraction}{1}
+\renewcommand{\textfraction}{0}
+\renewcommand\thefootnote{\arabic{footnote})}
+
+% パッケージ
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{amsmath,amssymb,epsfig}
+\usepackage{eucal}
+\usepackage{bm}
+\usepackage{ascmac}
+\usepackage{pifont}
+\usepackage{multirow}
+\usepackage{enumerate}
+\usepackage{cases}
+\usepackage{type1cm}
+\usepackage{cancel}
+\usepackage{url}
+\usepackage{cite}
+%\usepackage{color}
+\usepackage[dvipdfmx]{color}
+\usepackage{caption}
+\usepackage[caption=false]{subfig}
+\captionsetup[figure]{labelsep=space}
+\usepackage{here}
+
+% 擬似コード作成用
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{setspace}
+\input{../sty/jdummy.def}
+
+% カウンタの設定
+\setcounter{section}{0}
+\setcounter{subsection}{0}
+\setcounter{subsubsection}{0}
+\setcounter{equation}{0}
+
+% キャプションの図をFigに変更
+\renewcommand{\figurename}{Fig.}
+\renewcommand{\tablename}{Tab.}
+
+% 式番号を式(章番号.番号)に
+\makeatletter
+\renewcommand{\theequation}{\arabic{equation}}
+\@addtoreset{equation}{section}
+\makeatother
+
+% タイトル部分
+\title{\vspace{-20truemm}
+{\normalsize \rightline{平成29年\ 10月\ 17日}}
+{\large 確率システム制御特論\\}
+第1回演習問題\\
+\date{}
+\vspace{-2truemm}}
+\author{機械知能工学専攻 知能制御工学コース \hspace{3mm} 17344219 \ 二宮 悠二}
+%---------------------------------------------
+% ドキュメントの開始
+\begin{document}
+\parindent = 0pt % 字下げoff
+% 表紙
+\titlepage
+\maketitle
+%---------------------------------------------
+% 課題内容
+{\Large{\bf 課題}}
+\vspace{2mm}\\
+%---------------------------------------------
+\ \ 講義アーカイブを視聴して疑問に思った点または理解出来た点などをまとめ，電子レポートとして提出せよ．\\\\
+%---------------------------------------------
+%---------------------------------------------
+{\Large{\bf 考察}}
+\vspace{2mm}\\
+%---------------------------------------------
+\ \ \ 第1回目の講義を通じ，カルマンフィルタの基礎である確率について，その根幹となる部分を理解することができた．
+特に，これまでにも扱ったことのある「同時確率」，「周辺確率」，「条件付き確率」について例題を通じて学習をすることで，それぞれの意味と違いを再度認識し理解することができた．また，これらの確率を組み合わせることにより，元の条件付き確率の因果関係を逆に，すなわちこの条件を反転させることを可能にし，次の事象に対する確率が求められるという点がよく分かった．
+
+%条件の反転を可能にし，事前確率と新しい情報である事象による修正項を用いて，次の事象に対する確率を求められるという点がよく分かった．
+\end{document}

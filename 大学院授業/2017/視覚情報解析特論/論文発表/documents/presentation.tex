@@ -1,0 +1,201 @@
+\documentclass[a4paper,10pt]{jarticle}
+
+% レイアウト
+\setlength{\hoffset}{0cm}
+\setlength{\oddsidemargin}{-3mm}
+\setlength{\evensidemargin}{-3cm}
+\setlength{\marginparsep}{0cm}
+\setlength{\marginparwidth}{0cm}
+\setlength{\textheight}{23.7cm}
+\setlength{\textwidth}{17cm}
+\setlength{\topmargin}{-45pt}
+
+\renewcommand{\baselinestretch}{1.4}
+\renewcommand{\floatpagefraction}{1}
+\renewcommand{\topfraction}{1}
+\renewcommand{\bottomfraction}{1}
+\renewcommand{\textfraction}{0}
+% \renewcommand{\thefootnote{\arabic{footnote}}} % 脚注
+
+\renewcommand{\thesection}{3.\arabic{section}} % セクションの前に章番号を追加
+
+\newcommand{\argmin}{\mathop{\rm arg~min}\limits} % arg min の定義
+
+
+% パッケージ
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{amsmath,amssymb,epsfig}
+\usepackage{eucal}
+\usepackage{bm}
+\usepackage{ascmac}
+\usepackage{pifont}
+\usepackage{multirow}
+\usepackage{enumerate}
+\usepackage{cases}
+\usepackage{type1cm}
+\usepackage{cancel}
+\usepackage{url}
+\usepackage{cite}
+%\usepackage{color}
+\usepackage[dvipdfmx]{color}
+\usepackage{caption}
+\usepackage[caption=false]{subfig}
+\captionsetup[figure]{labelsep=space}
+\usepackage{url}
+
+% 擬似コード作成用
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{setspace}
+\input{../sty/jdummy.def}
+
+% カウンタの設定
+\setcounter{section}{0}
+\setcounter{subsection}{0}
+\setcounter{subsubsection}{0}
+\setcounter{equation}{0}
+
+% キャプションの図をFigに変更
+\renewcommand{\figurename}{Fig.}
+\renewcommand{\tablename}{Tab.}
+
+% 式番号を式(章番号.番号)に
+\makeatletter
+\renewcommand{\theequation}{3.\arabic{equation}}
+\@addtoreset{equation}{section}
+\makeatother
+
+
+% タイトル部分
+\title{\vspace{-20truemm}
+{\normalsize \rightline{平成29年\ 6月\ 5日}}  %日付
+{\large 視覚情報解析特論\\} %科目名
+% {\large Computer Vision A Modern Approach, Chapter 3 (pp.45-47)\\} %章番号とページ
+3D Motion Reconstruction for Real-World Camera Motion\\ %タイトル
+\date{}
+\vspace{-2truemm}}
+\author{西田研究室 17344219 二宮 悠二} %番号氏名
+
+% ドキュメントの開始
+\begin{document}
+% 表紙
+\titlepage
+\maketitle
+
+本稿では論文「3D Motion Reconstruction for Real-World Camera Motion」の第3節「Adding 3D Body Keyframes」の後半部分についての説明を行う．内容としては，キーフレームの抽出箇所と再構成性，画像点からのカメラモーションの計算方法についてである．本稿では特に，論文内で参考にされた二つの手法について述べる．
+
+
+% 本章では校正プロセスを次の項目に分けて考える．まず，\ref{sec1}節にて同時座標系におけるカメラの射影変換行列$ M $の推定方法について述べ，\ref{sec2}節にてこの行列から内部変数および外部変数を推定する方法を示す．なお．\ref{sec3}節では，これらのプロセスを適用できない可能性のある退縮点構成について述べる．最後に，\ref{assignment}節にて質問のあったスケール因子の必要性を課題として示す．
+
+
+\section{Reconstructibility \& 3D Keyframes}
+\label{sec1}
+前章までの発表にて，画像点から復元する方法と軌道から復元する方法の二つが挙げられた．その中で次の式
+%
+\begin{equation}
+ \argmin_{\beta} || ~ \mbox{\boldmath $ \acute{X} $} - \mbox{\boldmath $ \acute{\Theta} $} \mbox{\boldmath $ \beta $} ~ ||^2 + \lambda ~ || ~ \mbox{\boldmath $ \beta $} ~ ||^p_p
+\label{equ5}
+\end{equation}
+%
+で与えられた目的関数の欠点は，コンピュータビジョン（例えば画像点の追跡）における他ツールから提供されうる追加情報を考慮しないという点である．逆に軌道生成に基づく NRSFM 法の欠点は，第2節で述べたように画像点の投影による再構成性が低いことである．具体的には，カメラの動きが点の動きと相関している，すなわち，カメラと点が同様な滑らかで緩やかな軌道を有する場合，再構成性は低下する．このときの目的関数は次式で与えられる．
+%
+\begin{equation}
+ \argmin_{\beta} || ~ \mbox{\boldmath $x$} - \mbox{\boldmath $P$} \mbox{\boldmath $\acute{\Theta}$} \mbox{\boldmath $\beta$} ~ ||^2 + \lambda ~ || ~ \mbox{\boldmath $\beta$} ~ ||^p_p
+\label{equ3}
+\end{equation}
+%
+こうした欠点をカバーするために，新しく目的関数を次のように定義する．
+%
+\begin{equation}
+ \argmin_{\beta} ( 1 - \gamma ) || ~ \mbox{\boldmath $x$} - \mbox{\boldmath $P$} \mbox{\boldmath $\Theta$} \mbox{\boldmath $\beta$} ~ ||^2 + \gamma ~ || ~ \mbox{\boldmath $ \acute{X} $} - \mbox{\boldmath $ \acute{\Theta} $} \mbox{\boldmath $ \beta $} ~ ||^2 + \lambda ~ || ~ \mbox{\boldmath $ \beta $} ~ ||^p
+\label{equ6}
+\end{equation}
+%
+ここで，$ \gamma $は二次元画像投影に関連した3Dキーフレームを制御するための重みで，$ \gamma = 1 $のとき，(\ref{equ5})式で示した圧縮センシング問題に，$ \gamma = 0 $のとき，(\ref{equ3})式で示した軌道基底問題が生じる．
+
+
+\subsection{Akhter の手法}
+
+この手法の中で\ref{equ6}式における$ \mbox{\boldmath $P$} $と$ \mbox{\boldmath $ \beta $}$を同時に解く方法が提案された．本稿では，$ \mbox{\boldmath $ P $}$が体の剛体的な部分，すなわち運動中に不動であると考えられる胴体の部分から計算することができれば，より良い結果が得られることが分かったのだが，比較対象としてこの手法について記すことにする．
+
+計測された2次元軌道は$ 2F \times P $の観測行列$ \mbox{\boldmath $ W $}$に含まれており，その中に$ F $フレーム，$ P $個の画像点を含んでいる．
+
+この観測行列は$ \mbox{\boldmath $ W $} = R \mbox{\boldmath $ S $}$として正射影行列$ R $と構造行列$ \mbox{\boldmath $ S $} $に分解できる．ただし，$ R $は$ 2F \times 3F $の行列である．
+
+さらに，$ \mbox{\boldmath $ R $}_t $は$ 2 \times 3 $の正射影行列である．第2節にて，本稿では$ \mbox{\boldmath $ S $} = \mbox{\boldmath $ \Theta $} A $とおくことで次のように分解することができる．
+%
+\begin{equation}
+ \mbox{\boldmath $ W $} = R \mbox{\boldmath $ S $} = R \mbox{\boldmath $ \Theta $} A = \mbox{\boldmath $ \Lambda $} A
+\end{equation}
+%
+ここで，$ \mbox{\boldmath $ \Lambda $} = R \mbox{\boldmath $ \Theta $} $である．$ \mbox{\boldmath $ \Lambda $}  $は$ 3F \times 3k $の行列であるので，$ \mbox{\boldmath $ W $} $のランクは$ 3k $である．
+
+SVD~(~Singular Value Decomposition~)を用いて特異値分解を行うと，$ \mbox{\boldmath $ W $} $は次のように表せる．
+%
+\begin{equation}
+ \mbox{\boldmath $ W $} = \mbox{\boldmath $ \hat{\Lambda} $} {\hat{A}}
+\end{equation}
+%
+% 特異値分解についての説明する
+
+一般に，行列$ \mbox{\boldmath $ \hat{\Lambda} $} $と$ \hat{A} $はそれぞれ$ \mbox{\boldmath $ \Lambda $} $と$ A $には等しくならない．これは，因数分解の結果が一意的に決まらないためである．したがって，メートル構造体の復元のために必要であるのは次式で与えられるような可逆行列を算出することである．
+%
+\begin{equation}
+ \mbox{\boldmath $ \Lambda $} = \mbox{\boldmath $ \hat{\Lambda} $} \mbox{\boldmath $ Q $ } ~ , ~ A = {\bf Q}^{-1} \hat{A}
+\end{equation}
+%
+
+\subsection{Wei \& Chai の手法}
+%
+また，本稿の考え方のベースとなっている Wei と Chai の手法について説明する．先行研究の論文では回転の制約だけでは曖昧さや無効な解が生じてしまうということが証明されている．ここでは形状のベースとなる部分を独自に決定し，それを基底制約として前述した曖昧さを取り除くことを目的としている．
+弱透視射影法において基底と回転の制約の両方を課すことが非剛体形状と軌道復元の問題に解法をもたらすことにつながる．
+本稿での解法の正確性とロバスト性は合成データにおいて定量的に，現実のビデオ映像において定性的に評価される．これについてまとめる．
+
+まず，定理1として次が挙げられる．
+%
+\begin{description}
+ \item[定理1]\mbox{}\\
+　回転制約の一般的な解は$ \mbox{\boldmath $ G $} \mbox{\boldmath $ H $} \mbox{\boldmath $ G $}^T $で表される．ただし$ \mbox{\boldmath $ G $} $は訂正変換行列であり、$ \mbox{\boldmath $ H $} $は任意のブロック歪対称行列と任意のブロックスケール恒等行列の和である．
+\end{description}
+%
+ここで，$ \mbox{\boldmath $ G $} $は$ K $の三重列であり，それを$ g_k ~ (k=1, \dots , K) $とする．したがって$ g_k $はそれぞれが$ 3K \times 3 $の行列である．さらに$ g_k g^T_k $を$ \mbox{\boldmath $ Q $}_k $とおく．$ \mbox{\boldmath $ Q $}_k $は$ 3K \times 3K $の対象行列である．$ g_k g^T_k $はSVD使うことで計算されうるので，この$ \mbox{\boldmath $ Q $}_k $を計算することにより二つの制約，回転制約と基底制約を利用でき，制約として課すことができるようになるのである．
+
+さて，この定理1のために，$ \mbox{\boldmath $ Q $}_k $に回転制約を課して$ \mbox{\boldmath $ G $} \mbox{\boldmath $ H $} \mbox{\boldmath $ G $}^T $を曖昧な解にする．$ \mbox{\boldmath $ H $} $は$ K^2 $の$ 3 \times 3 $のブロックを含み，$ \mbox{\boldmath $ H $}_{mn} $とおく（$ m,~n =1, \dots ,K $）．$ \mbox{\boldmath $ H $}_{mn} $は次のように4つの独立な項を含む．
+%
+\begin{equation}
+ \mbox{\boldmath $ H $}_{mn} =
+ \begin{bmatrix}
+  h_1 & h_2 & h_3 \\
+  -h_2& h_1 & h_4 \\
+  -h_3& -h_4 & h_1
+ \end{bmatrix}
+\end{equation}
+%
+ここで補助的に，退縮していない状況では$ \mbox{\boldmath $ H $}_{mn} $はゼロ行列で
+%
+\begin{equation}
+ \mbox{\boldmath $ R $}_i \mbox{\boldmath $ H $}_{mn} \mbox{\boldmath $ R $}^T_j = \mbox{\boldmath $ 0 $}_{2 \times 2}
+\end{equation}
+%
+であるとする．ただし，$ \mbox{\boldmath $ R $}_i $と$ \mbox{\boldmath $ R $}_j $は$ 2 \times 3 $の回転行列である．
+これを派生させることにより，次の定理2を得る．
+%
+\begin{description}
+ \item[定理2]\mbox{}\\
+   基底制約と回転制約の両方を課すと，$ \mbox{\boldmath $ Q $}_k $の適正な解が得られる．
+\end{description}
+%
+この定理により，最小二乗法を用いて線形方程式を解くことで$ \mbox{\boldmath $ Q $}_k = g_k g^T_k ~ (k = 1, \dots , K) $を計算する．その後，SVDにより$ \mbox{\boldmath $ Q $}_k $を分解して$ g_k $を復元する．
+$ \mbox{\boldmath $ Q $}_k $の分解は任意の$ 3 \times 3 $の正規直交変換$ \phi $であり，$ (g_k \phi)(g_k \phi)^T $もまた$ \mbox{\boldmath $ Q $}_k $に等しい．
+
+この曖昧さは，$ g_1 , \dots , g_K $が異なる座標系の下で独立して推定されるという事実から生じている．これを解消するために，単一の基準座標系の下に変換を行う．
+すると，それぞれの回転の組が異なる$ 3 \times 3 $までの正規直交変換となる．基準座標系を指定するために，一組の回転を選び，他の回転の組の符号をこれらの回転が対応する基準のものと一致するように選ぶ．最後に，回転の組から基準への正規直交変換を計算することにより，変換された$ g_1, \dots , g_K $は望みの訂正行列$ \mbox{\boldmath $ G $} $を作り，正しい係数の計算および形状基底の復元がなされる．それらを組み合わせることで非剛性三次元形状が構成される．
+
+
+% 参考文献
+\begin{thebibliography}{99}
+\addcontentsline{toc}{section}{参考文献}
+\bibitem{1} I.Akhter, Y.Sheikh, S.Khan, and T.Kanade，”Nonerigid structure from motion trajectory space”，In $ NIPS $，2008．
+\bibitem{2} J.Xiao, J.Chai, and T.Kanade，”A closed form solution to non-rigid shape and motion recovery”，$International Journal of Computer Vision$．
+\end{thebibliography}
+
+\end{document}

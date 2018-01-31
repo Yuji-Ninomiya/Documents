@@ -1,0 +1,102 @@
+\documentclass[a4paper,11pt]{jarticle}
+
+% レイアウト
+\setlength{\hoffset}{0cm}
+\setlength{\oddsidemargin}{-3mm}
+\setlength{\evensidemargin}{-3cm}
+\setlength{\marginparsep}{0cm}
+\setlength{\marginparwidth}{0cm}
+\setlength{\textheight}{24.7cm}
+\setlength{\textwidth}{17cm}
+\setlength{\topmargin}{-45pt}
+
+
+\renewcommand{\baselinestretch}{1.2}
+\renewcommand{\floatpagefraction}{1}
+\renewcommand{\topfraction}{1}
+\renewcommand{\bottomfraction}{1}
+\renewcommand{\textfraction}{0}
+\renewcommand\thefootnote{\arabic{footnote})}
+
+% パッケージ
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{amsmath,amssymb,epsfig}
+\usepackage{eucal}
+\usepackage{bm}
+\usepackage{ascmac}
+\usepackage{pifont}
+\usepackage{multirow}
+\usepackage{enumerate}
+\usepackage{cases}
+\usepackage{type1cm}
+\usepackage{cancel}
+\usepackage{url}
+\usepackage{cite}
+%\usepackage{color}
+\usepackage[dvipdfmx]{color}
+\usepackage{caption}
+\usepackage[caption=false]{subfig}
+\captionsetup[figure]{labelsep=space}
+\usepackage{here}
+
+% 擬似コード作成用
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{setspace}
+\input{../sty/jdummy.def}
+
+% カウンタの設定
+\setcounter{section}{0}
+\setcounter{subsection}{0}
+\setcounter{subsubsection}{0}
+\setcounter{equation}{0}
+
+% キャプションの図をFigに変更
+\renewcommand{\figurename}{Fig.}
+\renewcommand{\tablename}{Tab.}
+
+% 式番号を式(章番号.番号)に
+\makeatletter
+\renewcommand{\theequation}{\arabic{equation}}
+\@addtoreset{equation}{section}
+\makeatother
+
+% タイトル部分
+\title{\vspace{-20truemm}
+{\normalsize \rightline{平成29年\ 11月\ 9日}}
+{\large 自動車工学特論\\}
+レポート課題2\\
+\date{}
+\vspace{-2truemm}}
+\author{機械知能工学専攻 知能制御工学コース \hspace{3mm} 17344219 \ 二宮 悠二}
+%---------------------------------------------
+% ドキュメントの開始
+\begin{document}
+\parindent = 0pt % 字下げoff
+% 表紙
+\titlepage
+\maketitle
+%---------------------------------------------
+% 課題内容
+{\Large{\bf 課題}}
+\vspace{2mm}\\
+%---------------------------------------------
+\ \ 下記項目について，400字以内にまとめよ．
+%-----------------------------------
+\begin{enumerate}
+ \setlength{\leftskip}{3.0cm}
+ \item 将来の自動車用パワートレーンは，どうあるべきか？
+ \item そのためには，どのような技術開発が必要か？
+ \item その技術開発のための課題は何か？
+ \item 課題解決のために何をすべきか？
+\end{enumerate}
+%-----------------------------------
+%---------------------------------------------
+%---------------------------------------------
+{\Large{\bf 考察}}
+\vspace{2mm}\\
+%---------------------------------------------
+\ \ \ 現在，排ガス規制強化と地球温暖化対策のために，燃費低減規制が世界的に進んでいる．世界の$ {\rm CO}_2 $排出量の内訳を見ても，輸送の際の自動車による排出割合がおよそ18\%と，全体の中で大きな割合を占めていることが分かる．したがって，ダウンサイジング化など排ガス低減や燃費向上を目指したパワートレーンの開発が必要とされている．これには，システムの小型化だけでなく他のアプリケーション等の付加技術との組み合わせによる機能の進化という意味合いも含まれている．自動車用ガソリンエンジンの効率は，2025年頃になるとエンジン単体での燃費向上は限界に達すると言われていることからもシステム同士を組み合わせて新たなシステムを構築することが重要になってくると考えられる．
+こうした課題を解決するために，エンジン制御システムの構造や特徴を理解し，どのような技術が求められていくかを把握することが大切である．
+% ，最高で38\%程度であるが，2025年には50\%に達するエンジンが実現すると言われている．しかし，この頃になるとエンジン単体での燃費向上は限界に達し，それ以降はHEVやEVの比率が急速に増加すると予想されている．
+% こうした問題を解決するために，石油に代わる代替エネルギーの活用を検討することも必要で，その中でCO2の削減や排気ガスレベルの改善に取り組んでいくことが重要になる．
+\end{document}
